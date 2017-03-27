@@ -14,7 +14,7 @@ using namespace std;
 double hres;
 double k;
 double g;
-ofstream fout;
+ofstream fout, fout_betta;
 int chek = 0;
 int chek2 = 0;
 
@@ -197,7 +197,7 @@ int NEWTON(double *beta, double *y) {
 			for(i=0; i<N; i++) 
 				{
 					beta_w[i]=beta[i]+gamma*dbeta[i];
-					printf("beta_w: %.16f\n",beta_w[i]);
+					//printf("beta_w: %.16f\n",beta_w[i]);
 				}
 			l(beta_w, res_w, y);
 			
@@ -216,16 +216,21 @@ return -2;
 
 int mprpp(double *beta) { //метод продолжения решения по параметру
 	double y[8];
-	while(1) {
-		if(NEWTON(beta,y)>=0) return 1;	
+	//while(1) {
+	//for(int i=0; i<300; i++) {
+	//fout_betta << "beta[0] = " << beta[0] << "\nbeta[1] = " << beta[1] << "\nbeta[2] = " << beta[2] << "\nbeta[3] = " << beta[3] << "\nbeta[4] = " << beta[4] << "\n\n";
+		if(NEWTON(beta,y)>=0) {
+			//fout_betta << "mprpp = " << 1;
+			return 1;
+		}	
 		else {
 			beta[0]=y[4];
 			beta[1]=y[5];
 			beta[2]=y[6];
 			beta[3]=y[7];
 		}
-	}
-
+	//}
+fout_betta << "\nmprpp = " << 0;
 return 0; // всё в порядке
 }
 
@@ -236,8 +241,9 @@ int main() {
 	//double res[5];
 	
 	fout.open("outputDIP.txt");
+	fout_betta.open("OutputDipBeta");
 	
-	cout << "INPUT g and k of resistance: ";
+	cout << "\aINPUT g and k of resistance: ";
 	cin >> g;
 	cin >> k;
 	
