@@ -1,0 +1,139 @@
+\begin{center}
+ \section{\Large  \bfseries  Постановка задачи}
+\end{center}
+
+\quad Рассматривается движение материальной точки в вертикальной плоскости в однородном поле сил тяжести и в однородной сопротивляющейся среде. Требуется определить форму траектории, обеспечивающей максимизацию горизонтальной координаты точки при переводе её из заданного начального состояния на заданную высоту за фиксированное время.
+Уравнения движения материальной точки в безразмерных переменных:
+$$
+\begin{aligned}
+	\begin{cases}
+		\dot{x} = v \cos\theta \\
+		\dot{y} = v \sin\theta \\
+		\dot{v} = -f(v)-\sin\theta \\
+	\end{cases}
+\end{aligned}
+$$
+
+С начальными условиями:
+$$
+x(0) = x_0, \quad y(0) = y_0, \quad v(0) = v_0, \quad x(T) = x_T, \quad y(T) = y_T
+$$
+$v(T)$ -- свободен. \\
+\\
+Целью уравнения является минимизация функционала $J = T \to \min\limits_{\theta}$
+\vskip 5mm
+\section{\Large  \bfseries Сведение задачи оптимального управления к краевой задаче. Принцип максимума Понтрягина.}
+\vskip 3mm
+
+\quad Выпишем функции Лагранжа и Понтрягина:
+$$
+	H = \psi_x v \cos\theta + \psi_y v \sin\theta + \psi_v(f(v)-\sin\theta)
+$$
+$$
+\begin{aligned}
+	\begin{cases}
+		\dot{\psi_x} = 0 \\
+		\dot{\psi_y} = 0 \\
+		\dot{\psi_v} = f'(v)\psi_v - \psi_x \cos\theta - \psi_y \sin\theta \\
+	\end{cases}
+\end{aligned}
+$$
+$$
+	l = \lambda_{x0}x(0) + \lambda_{y0}y(0) + \lambda_{v0}v(0) + \lambda_{xT}x(T) + \lambda_{yT}y(T) + \lambda_0 T
+$$
+Применим к задаче оптимального управления (1) принцип максимума Понтрягина. Необходимые условия оптимальности:
+
+а) Условие трансверсальности
+$$
+\begin{aligned}
+	\begin{cases}
+		\psi_x(0) = \frac{\partial l}{\partial x(0)} = \lambda_{x0} \\
+		\psi_y(0) = \frac{\partial l}{\partial y(0)} = \lambda_{y0} \\
+		\psi_v(0) = \frac{\partial l}{\partial v(0)} = \lambda_{v0} \\
+		\psi_x(T) = -\frac{\partial l}{\partial x(T)} = -\lambda_{xT} \\
+		\psi_y(T) = -\frac{\partial l}{\partial y(T)} = -\lambda_{yT} \\
+		\psi_v(T) = 0
+	\end{cases}
+\end{aligned}
+$$
+
+так как $v(T)$ свободен.
+
+б) условие оптимальности по управлению
+$$
+\begin{aligned}
+	H(\theta) = \cos{\theta}\cdot\psi_xv + \sin{\theta}\cdot(\psi_yv - \psi_v) \\
+	\hat{\theta} = arg\ abs\max H(\theta)
+\end{aligned}
+$$
+
+$$
+\begin{pmatrix}
+	 \cos\theta \\
+	 \sin\theta
+\end{pmatrix}
+\quad \uparrow \uparrow \quad
+\begin{pmatrix}
+	\psi_xv \\
+	\psi_yv - \psi_v
+\end{pmatrix}
+$$
+
+$$
+	\rho = \sqrt{(\psi_xv)^2 + (\psi_yv - \psi_v)^2}
+$$
+
+$$
+	\cos\theta = \frac{\psi_xv}{\rho} \quad \sin\theta = \frac{\psi_yv - \psi_v}{\rho}
+$$
+
+в) условие стационарности
+$$
+	H(T) = \frac{\partial l}{\partial T} = 1
+$$
+
+\vskip 3mm
+\section{\Large  \bfseries Краевая задача на минимум}
+\vskip 3mm
+
+На основе принципа максимума Понтрягина решение задачи оптимального управления (1) сводится к решению краевой задачи (2). По условиям нормировки положим $\lambda_0 = 1$. Тогда:
+$$
+\begin{aligned}
+	\begin{cases}
+		\dot{x} = \frac{v^2\psi_x}{\rho} \\
+		\dot{y} = \frac{v^2\psi_y - v\psi_v}{\rho} \\
+		\dot{v} = -f(v) - \frac{\psi_yv - \psi_v}{\rho} \\
+		\dot{\psi_v} = f'(v)\psi_v - \frac{v\psi_x^2}{\rho} - \frac{v\psi_y^2 - \psi_y \psi_v}{\rho}
+	\end{cases}
+\end{aligned}
+$$
+
+$$
+x(0) = x_0, \quad y(0) = y_0, \quad v(0) = v_0, \quad x(T) = x_T, \quad y(T) = y_T, \quad \psi_v(T) = 0.
+$$
+
+$$
+\begin{matrix}
+	H(T) = 1 \Longrightarrow H(0) = 1 \\
+	\Downarrow \\
+	\psi_xv\frac{\psi_xv}{\rho} + \frac{(\psi_yv-\psi_v)^2}{\rho} + \psi_vf(v) = 1 \\
+	\rho + \psi_vf(v) = 1 \Longrightarrow
+\end{matrix}
+$$
+
+\vskip 3mm
+\section{\Large  \bfseries Численное решение краевой задачи методом стрельбы.}
+\vskip 3mm
+
+Краевая задача решается численно методом стрельбы. В качестве параметров пристрелки выбираются недостающие для решения задачи Коши значения: \\
+$\overrightarrow{\beta} := (\psi_x(0), \psi_y(0), \psi_v(0), T)$. Задав эти значения каким-либо образом и решив задачу Коши на отрезке $[0,T]$. Задача Коши для системы дифференциальных уравнений, условий:
+$$
+\begin{aligned}
+	\begin{cases}
+		x(T)[\overrightarrow{\beta}] - x_T = 0, \\
+		y(T)[\overrightarrow{\beta}] = 0, \\
+		\psi_v(T)[\overrightarrow{\beta}] = 0, \\
+		\{\rho(T)-\psi_v(T)f(v)(T)\}[\overrightarrow{\beta}] - 1 =0
+	\end{cases}
+\end{aligned}
+$$ решается численно явным методом Рунге-Кутты 5-го порядка, основанным на расчётных формулах Дормана-Принса (DDOPRI5) с автоматическим выбором шага (то есть с контролем относительной локальной погрешности на шаге по правилу Рунге).

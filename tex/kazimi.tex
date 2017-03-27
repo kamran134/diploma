@@ -1,0 +1,262 @@
+\begin{center}
+ \section{\Large  \bfseries  Постановка задачи}
+\end{center}
+
+\quad В данной работе рассматривается движение материальной точки в вертикальной плоскости в однородном поле сил тяжести и в однородной сопротивляющейся среде.
+Уравнения движения материальной точки в безразмерных переменных:
+%$$
+\begin{equation}
+\label{zou}
+%\begin{aligned}
+	\begin{cases}
+		\dot{x} = v \cos\theta \\
+		\dot{y} = v \sin\theta \\
+		\dot{v} = -f(v)-\sin\theta \\
+	\end{cases}
+%\end{aligned}
+\end{equation}
+%$$
+
+С начальными условиями:
+$$
+x(0) = x_0, \quad y(0) = y_0, \quad v(0) = v_0, \quad x(T) = x_T, \quad y(T) = y_T
+$$
+$v(T)$ -- свободен. \\
+\\
+Целью уравнения является минимизация функционала $J = T \to \min\limits_{\theta}$
+\vskip 5mm
+\section{\Large  \bfseries Сведение задачи оптимального управления к краевой задаче. Принцип максимума Понтрягина.}
+\vskip 3mm
+
+\quad Выпишем функции Понтрягина:
+$$
+	H = \psi_x v \cos\theta + \psi_y v \sin\theta + \psi_v(-f(v)-\sin\theta)
+$$
+$$
+	l = \lambda_{x0}x(0) + \lambda_{y0}y(0) + \lambda_{v0}v(0) + \lambda_{xT}x(T) + \lambda_{yT}y(T) + \lambda_0 T
+$$
+Применим к задаче оптимального управления~(\ref{zou}) принцип максимума Понтрягина. Необходимые условия оптимальности:
+
+\begin{equation}
+\label{pontragin}
+%$$
+%\begin{aligned}
+	\begin{cases}
+		\dot{\psi_x} = 0 \\
+		\dot{\psi_y} = 0 \\
+		\dot{\psi_v} = f'(v)\psi_v - \psi_x \cos\theta - \psi_y \sin\theta \\
+	\end{cases}
+%\end{aligned}
+%$$
+\end{equation}
+
+а) Условие трансверсальности
+\begin{equation}
+\label{transversalnost}
+%$$
+%\begin{aligned}
+	\begin{cases}
+		\psi_x(0) = \frac{\partial l}{\partial x(0)} = \lambda_{x0} \\
+		\psi_y(0) = \frac{\partial l}{\partial y(0)} = \lambda_{y0} \\
+		\psi_v(0) = \frac{\partial l}{\partial v(0)} = \lambda_{v0} \\
+		\psi_x(T) = -\frac{\partial l}{\partial x(T)} = -\lambda_{xT} \\
+		\psi_y(T) = -\frac{\partial l}{\partial y(T)} = -\lambda_{yT} \\
+		\psi_v(T) = 0
+	\end{cases}
+%\end{aligned}
+%$$
+\end{equation}
+
+так как $v(T)$ свободен.
+
+б) условие оптимальности по управлению
+\begin{equation}
+\label{optimalnost}
+%$$
+%\begin{aligned}
+	H(\theta) = \cos{\theta}\cdot\psi_xv + \sin{\theta}\cdot(\psi_yv - \psi_v) \\
+	\hat{\theta} = arg\ abs\max H(\theta)
+%\end{aligned}
+%$$
+\end{equation}
+
+$$
+\begin{pmatrix}
+	 \cos\theta \\
+	 \sin\theta
+\end{pmatrix}
+\quad \uparrow \uparrow \quad
+\begin{pmatrix}
+	\psi_xv \\
+	\psi_yv - \psi_v
+\end{pmatrix}
+$$
+
+$$
+	\rho = \sqrt{(\psi_xv)^2 + (\psi_yv - \psi_v)^2}
+$$
+
+$$
+	\cos\theta = \frac{\psi_xv}{\rho} \quad \sin\theta = \frac{\psi_yv - \psi_v}{\rho}
+$$
+
+в) условие стационарности
+$$
+	H(T) = \frac{\partial l}{\partial T} = 1
+$$
+
+\vskip 3mm
+\section{\Large  \bfseries Краевая задача на минимум}
+\vskip 3mm
+
+На основе принципа максимума Понтрягина решение задачи оптимального управления~(\ref{zou}) сводится к решению краевой задачи. По условиям нормировки положим $\lambda_0 = 1$. Тогда:
+\begin{equation}
+\label{kraevaya}
+%$$
+%\begin{aligned}
+	\begin{cases}
+		\dot{x} = \frac{v^2\psi_x}{\rho} \\
+		\dot{y} = \frac{v^2\psi_y - v\psi_v}{\rho} \\
+		\dot{v} = -f(v) - \frac{\psi_yv - \psi_v}{\rho} \\
+		\dot{\psi_v} = f'(v)\psi_v - \frac{v\psi_x^2}{\rho} - \frac{v\psi_y^2 - \psi_y \psi_v}{\rho}
+	\end{cases}
+%\end{aligned}
+%$$
+\end{equation}
+
+$$
+x(0) = x_0, \quad y(0) = y_0, \quad v(0) = v_0, \quad x(T) = x_T, \quad y(T) = y_T, \quad \psi_v(T) = 0.
+$$
+
+$$
+\begin{matrix}
+	H(T) = 1 \Longrightarrow H(0) = 1 \\
+	\Downarrow \\
+	\psi_xv\frac{\psi_xv}{\rho} + \frac{(\psi_yv-\psi_v)^2}{\rho} + \psi_vf(v) = 1 \\
+	\rho + \psi_vf(v) = 1 \Longrightarrow
+\end{matrix}
+$$
+
+\vskip 3mm
+\section{\Large  \bfseries Численное решение краевой задачи методом стрельбы.}
+\vskip 3mm
+
+Краевая задача решается численно методом стрельбы. В качестве параметров пристрелки выбираются недостающие для решения задачи Коши значения: \\
+$\overrightarrow{\beta} := (\psi_x(0), \psi_y(0), \psi_v(0), T)$. Задаются эти значения каким-либо образом и решается задача Коши на отрезке $[0,T]$.
+$$
+\begin{aligned}
+	\begin{cases}
+		x(T)[\overrightarrow{\beta}] - x_T = 0, \\
+		y(T)[\overrightarrow{\beta}] = 0, \\
+		\psi_v(T)[\overrightarrow{\beta}] = 0, \\
+		\{\rho(T)-\psi_v(T)f(v)(T)\}[\overrightarrow{\beta}] - 1 =0
+	\end{cases}
+\end{aligned}
+$$ 
+% решается численно явным методом Рунге-Кутты 5-го порядка, основанным на расчётных формулах Дормана-Принса (DDOPRI5) с автоматическим выбором шага (то есть с контролем относительной локальной погрешности на шаге по правилу Рунге).
+решается численно методом Ньютона, с использованием формул Исаева-Сонина с нормировкой Фидоренко.
+Для $\overrightarrow{\beta}=(1,1,1,5)$, т.е. $\psi_x(0)=1, \psi_y(0)=1, \psi_v(0)=1, T=5$, получаем следующие результаты:
+
+\vskip 2cm
+\begin{center}
+\begin{tabular}{|c|c|}
+\multicolumn{2}{c}{Таблица 1.}\\
+\hline
+$x(0)$ & 0.0000000000000000\\
+$x(T)$ & 0.2202447746680990\\
+\hline
+$y(0)$ & 10.0000000000000000\\ 
+$y(T)$ & 6.0309331715847536\\
+\hline
+$v(0)$ & 0.0000000000000000\\
+$v(T)$ & 0.9927347427368552\\
+\hline
+$\psi_x(0)$ & 1.0000000000000000\\
+$\psi_x(T)$ & 1.0000000000000000\\
+\hline
+$\psi_y(0)$ & 1.0000000000000000\\
+$\psi_y(T)$ & 1.0000000000000000\\
+\hline
+$\psi_v(0)$ & 1.0000000000000000\\
+$\psi_v(T)$ & 274.0343481176872729\\
+\hline
+\multicolumn{2}{c}{Решение задачи Коши методом Рунге-Кутты. $T=5$}
+\end{tabular}
+\end{center}
+
+\vskip 2cm
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\multicolumn{4}{c}{Таблица 2: Оценка погрешности и сходимости}\\
+\hline
+$t$ & $y_1 - y_2$ & $y_2 - y_3$ & $\frac{y_1 - y_2}{y_2 - y_3}$ \\
+\hline
+0.02 & $-2 \cdot 10^{-15}$ & 0 & $256.1303113052976528$ \\
+\hline
+2.50 & $-1.18522555 \cdot 10^{-8}$ & $-1.257662 \cdot 10^{-9}$ & $94.2403861665936518$ \\
+\hline
+5.00 & $-2.52649097 \cdot 10^{-8}$ & $-2.367332 \cdot 10^{-10}$ & $106.7231418330321731$ \\ 
+\hline
+\end{tabular}
+\end{center}
+
+\vskip 2cm
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\multicolumn{4}{c}{Таблица 3: Оценка глобальной погрешности}\\
+\hline
+$t$ & $\varepsilon = 10^{-7}$ & $\varepsilon = 10^{-9}$ & $\varepsilon = 10^{-11}$ \\
+\hline
+0.02 & $6.91443298 \cdot 10^{-8}$ & $2.3979381 \cdot 10^{-9}$ & 0.0000000000450373 \\
+\hline
+2.50 & $1.7732318516 \cdot 10^{-6}$ & $5.79088741 \cdot 10^{-8}$ & $1.6140584 \cdot 10^{-9}$ \\
+\hline
+5.00 & $7.09603385270 \cdot 10^{-5}$ & $3.815495214947 \cdot 10^{-4}$ & $5.68919248 \cdot 10^{-8}$ \\ 
+\hline
+\end{tabular}
+\end{center}
+
+\vskip 2cm
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\multicolumn{3}{c}{Таблица 4: Отношение глобальных погрешностей}\\
+\hline
+$t$ & $\frac{\delta_1}{\delta_2}$ & $\frac{\delta_2}{\delta_3}$ \\
+\hline
+0.02 & 28.8349099212118922 & 53.2433344656183465 \\
+\hline
+2.50 & 30.6210728326810582 & 35.8778057114952205 \\
+\hline
+5.00 & 33.6130727915563696 & 37.1070846894302591 \\ 
+\hline
+\end{tabular}
+\end{center}
+
+По условиям краевой задачи $\psi_v(T)=0$. Используя метод продолжения решения по параметру, экспериментально была достигнута точка 0 с точностью до $10^{-9}$ методом Ньютона за 9 итераций:
+
+\vskip 2cm
+\begin{center}
+\begin{tabular}{|c|c|}
+\multicolumn{2}{c}{Таблица 5.}\\
+\hline
+$x(0)$ & 0.0000000000000000\\
+$x(T)$ & 0.0727930732377216\\
+\hline
+$y(0)$ & 10.0000000000000000\\ 
+$y(T)$ & 6.0309331715847652\\
+\hline
+$v(0)$ & 0.0000000000000000\\
+$v(T)$ & 0.9927347427368546\\
+\hline
+$\psi_x(0)$ & 1.0000000000000000\\
+$\psi_x(T)$ & 0.0338084007206934\\
+\hline
+$\psi_y(0)$ & 1.0000000000000000\\
+$\psi_y(T)$ & -1.0067509158113541\\
+\hline
+$\psi_v(0)$ & 1.0000000000000000\\
+$\psi_v(T)$ & -0.0000000015582136\\
+\hline
+\multicolumn{2}{c}{Решение краевой задачи методом стрельбы. $T=5, x_T=0.0727930732377$}
+\end{tabular}
+\end{center}
