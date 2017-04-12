@@ -127,7 +127,7 @@ void l(double *beta, double *res, double *y) {
     RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
     H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3] - y[4]*k*_v_*y[2] - y[5]*k*_v_*y[3];//H(T)
     
-    fout << "\n\nRHO is equal to " << RHO << "\n\n";
+    //fout << "\n\nRHO is equal to " << RHO << "\n\n";
     
     res[0]=y[0]-5; //0.0727930740001; //-0.07279307323(2)1;
 	res[1]=y[1]-7; //-6.0309331715847536;//T=5//-8.8869461060126618; //T=2//y_T
@@ -176,16 +176,16 @@ void gradf(double *beta, double *dbeta, double *res, double *y) {
 }
 
 int NEWTON(double *beta, double *y) {
-	int i, k, N=5;
+	int i, j, N=5;
 	double res[N], res_w[N], beta_w[N], dbeta[N], gamma;
 	bool flag;
 	
 	l(beta, res, y);
 	
-	for(k=0; k<15; k++) {
-		cout << "\n-------\nk = " << k << "\n-------\n";
+	for(j=0; j<15; j++) {
+		cout << "\n-------\nk = " << j << "\n-------\n";
 	
-		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << k << " iteration" << endl; return k;}
+		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << j << " iteration" << endl; return j;}
 		gradf(beta,dbeta,res,y);
 	/*	
 		printf("\n\n**************lynear_sys***************\n\n");
@@ -204,7 +204,7 @@ int NEWTON(double *beta, double *y) {
 			if(norm(res_w,N)<norm(res,N)) {flag=true; break;}
 			gamma/=2.0;
 		}
-		if(flag==false) {cout << endl << "Broken on " << k << "'s iteration" << endl; return -1;}
+		if(flag==false) {cout << endl << "Broken on " << j << "'s iteration" << endl; return -1;}
 		for(i=0; i<N; i++) {
 			beta[i]=beta_w[i];
 			res[i]=res_w[i];
@@ -214,41 +214,42 @@ cout << endl << "not enough iteration" << endl;
 return -2;
 }
 
-int mprpp(double *beta) { //метод продолжения решения по параметру
-	double y[8];
-	//while(1) {
-	//for(int i=0; i<300; i++) {
-	//fout_betta << "beta[0] = " << beta[0] << "\nbeta[1] = " << beta[1] << "\nbeta[2] = " << beta[2] << "\nbeta[3] = " << beta[3] << "\nbeta[4] = " << beta[4] << "\n\n";
-		if(NEWTON(beta,y)>=0) {
-			//fout_betta << "mprpp = " << 1;
-			return 1;
-		}	
-		else {
-			beta[0]=y[4];
-			beta[1]=y[5];
-			beta[2]=y[6];
-			beta[3]=y[7];
+int mprpp(double *beta, double *y) { //метод продолжения решения по параметру
+	double knew;
+	
+	knew=k;
+	
+	if (k>0.0e0) {
+		k=0;
+		while(k<knew) {
+			NEWTON(beta, y);
+			k+=0.1;
 		}
-	//}
-fout_betta << "\nmprpp = " << 0;
-return 0; // всё в порядке
+	}
+	else NEWTON(beta, y);
+	return 1;
 }
 
 int main() {
 	double beta[5] = {1, 1, 1, 1, 1};
-	//double y[8];
+	double y[8];
+	int check;
 	
-	//double res[5];
+	//check = 1;
 	
-	fout.open("outputDIP.txt");
-	fout_betta.open("OutputDipBeta");
+	//fout.open("outputDIP.txt");
+	//fout_betta.open("OutputDipBeta");
 	
 	cout << "\aINPUT g and k of resistance: ";
 	cin >> g;
 	cin >> k;
 	
-	//NEWTON(beta,y);
-	mprpp(beta);
+	cout << "WHICH METHOD DO YOU WANT TO USE?\n\tpress '0' for function NEWTON or '1' for function mprpp: ";
+	cin >> check;
+	
+	if(check==1) mprpp(beta,y);
+	if(check==0) NEWTON(beta,y);
+
 	cout << "\nT = " << beta[4];
 	//l(beta,res,y);
 
