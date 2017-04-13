@@ -16,36 +16,8 @@ double k;
 double g;
 ofstream fout, fout_betta;
 
-void matrix_print(double **pro, int N) {
-	int i, j;
-	cout << "\n--------------------\n";
-	for(i=0; i<N; i++) {
-		for(j=0; j<N; j++) {
-			cout << pro[i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "--------------------\n";
-}
+#include "diploma_func/utilits.cpp"
 
-double norm(double *vector, int N) {
-	int i;
-    double cur, max_W, sum2;
-
-    max_W = 0.0;
-    for(i=0; i<N; i++ ){
-      cur = fabs(vector[i]);
-      if(cur>max_W) max_W=cur;
-    }
-    if(max_W==0.0) return 0.0;
-
-    sum2=0.0;
-    for(i=0; i<N; i++ ){
-      cur=vector[i]/max_W;
-      sum2+=cur*cur;
-    }
-return max_W*sqrt(sum2);
-}
 
 //resistance functions----------------------------------------------
 double fr(double k, double vx, double vy) {
@@ -103,7 +75,7 @@ void fcn(double x, double *y, double *f) {
 
 //Метод Рунге-Кутты 5-ого порядка с автоматическим выбором шага
 #include "diploma_func/ddopri5_brakhistakhrona.cpp"
-#include "prak3_func/gauss_m.cpp"
+#include "diploma_func/gauss_m.cpp"
 
 void l(double *beta, double *res, double *y) {
 	double pvx2, pvy2, RHO, H;
@@ -216,9 +188,10 @@ cout << endl << "not enough iteration" << endl;
 return -2;
 }
 
+//mprpp old
 int mprpp(double *beta, double *y) { //метод продолжения решения по параметру
 	double knew;
-	
+	int kol=0;
 	knew=k;
 	
 	if (k>0.0e0) {
@@ -226,16 +199,18 @@ int mprpp(double *beta, double *y) { //метод продолжения реш�
 		while(k<knew) {
 			NEWTON(beta, y);
 			k+=0.1;
+			kol++;
 		}
 	}
 	else NEWTON(beta, y);
-	return 1;
+	
+	return kol;
 }
 
 int main() {
 	double beta[5] = {1, 1, 1, 1, 1};
 	double y[8];
-	int check;
+	int check, iter=-1;
 	
 	
 	cout << "\aINPUT g and k of resistance: ";
@@ -245,11 +220,10 @@ int main() {
 	cout << "WHICH METHOD DO YOU WANT TO USE?\n\tpress '0' for function NEWTON or '1' for function mprpp: ";
 	cin >> check;
 	
-	if(check==1) mprpp(beta,y);
 	if(check==0) NEWTON(beta,y);
+	else if(check==1) iter=mprpp(beta,y); 
 
-	cout << "\nT = " << beta[4];
-	//l(beta,res,y);
+	cout << "\nmprpp = " << iter;
 
 return 0;
 }

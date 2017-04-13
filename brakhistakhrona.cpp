@@ -76,7 +76,7 @@ void fcn(double x, double *y, double *f) {
 
 //Метод Рунге-Кутты 5-ого порядка с автоматическим выбором шага
 #include "diploma_func/ddopri5_brakhistakhrona.cpp"
-#include "prak3_func/gauss_m.cpp"
+#include "diploma_func/gauss_m.cpp"
 
 void l(double *beta, double *res, double *y) {
 	double pvx2, pvy2, RHO, H;
