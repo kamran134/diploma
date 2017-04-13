@@ -44,32 +44,32 @@ double norm(double *vector, int N) {
 return max_W*sqrt(sum2);
 }
 
-//resistance function
-double fr(double k, double v) {
-return k*v*v;
-}
-
-double f_r(double k, double v) {
-return 2*k*v;
-}
-
+//------------------------------------------
 void fcn(double x, double *y, double *f) {
-
-double g=9.8;
-double p_vx2, p_vy2, RHO;
-
-	p_vx2 = y[6]*y[6];
+	double p_vx2, p_vy2, RHO;
+	double g=9.8;
+	p_vx2 = y[6]*y[6];	
     p_vy2 = y[7]*y[7];
     RHO = sqrt(p_vx2+p_vy2);
+	
+	if(RHO<=1e-12) {
+		RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+		y[6]=y[4];
+		y[7]=y[5];
+	}
+
 
 	f[0] = y[2];
 	f[1] = y[3];
 	f[2] = (g*y[6])/(2*RHO);
-	f[3] = g/2. - (g*y[7])/(2*RHO);
+	f[3] = g/2. + (g*y[7])/(2*RHO);
 	f[4] = 0;
 	f[5] = 0;
 	f[6] = -y[4];
 	f[7] = -y[5];
+	
+	//f[2] = (g*y[6])/(2*RHO);
+	//f[3] = g/2. + (g*y[7])/(2*RHO);
 }
 
 
@@ -79,9 +79,9 @@ double p_vx2, p_vy2, RHO;
 #include "prak3_func/gauss_m.cpp"
 
 void l(double *beta, double *res, double *y) {
-	double p_vx2, p_vy2, RHO, H;
+	double pvx2, pvy2, RHO, H;
 	double g=9.8;
-	//double y[6];
+
 	y[0]=0; //x_0
 	y[1]=0; //y_0
 	y[2]=0; //vx_0
@@ -92,12 +92,17 @@ void l(double *beta, double *res, double *y) {
 	y[7]=beta[3]; //p_vy0
 	ddopri5(8,fcn,0,y,beta[4],1.e-11,1.0e0,0.5e0);
 	
-	p_vx2 = y[6]*y[6];
-    p_vy2 = y[7]*y[7];
-    RHO = sqrt(p_vx2+p_vy2); //RHO(T)
-    RHO *= 2; //!!!! ПОЛУЧИЛИ 2*RHO(T)
+	pvx2 = y[6]*y[6];
+    pvy2 = y[7]*y[7];
+    RHO = sqrt(pvx2+pvy2); //RHO(T)
     
+    //ВАЖНЫЙ МОМЕНТ!
+    if(RHO<1e-12) RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+    
+    RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
     H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3];//H(T)
+    
+    //fout << "\n\nRHO is equal to " << RHO << "\n\n";
     
     res[0]=y[0]-5; //0.0727930740001; //-0.07279307323(2)1;
 	res[1]=y[1]-7; //-6.0309331715847536;//T=5//-8.8869461060126618; //T=2//y_T
@@ -146,35 +151,32 @@ void gradf(double *beta, double *dbeta, double *res, double *y) {
 }
 
 int NEWTON(double *beta, double *y) {
-	int i, k, N=5;
+	int i, j, N=5;
 	double res[N], res_w[N], beta_w[N], dbeta[N], gamma;
 	bool flag;
 	
 	l(beta, res, y);
 	
-	for(k=0; k<15; k++) {
-		cout << "\n-------\nk = " << k << "\n-------\n";
+	for(j=0; j<15; j++) {
+		cout << "\n-------\nj = " << j << "\n-------\n";
 	
-		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << k << " iteration" << endl; return k;}
+		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << j << " iteration" << endl; return j;}
 		gradf(beta,dbeta,res,y);
-		
-		printf("\n\n**************lynear_sys***************\n\n");
-		for(i=0; i<N; i++) printf("\ndbeta[%d] = %.16f", i, dbeta[i]);
-		
+	
 		gamma=1.0;
 		flag=false;
 		while(gamma>eps_gamma) {
 			for(i=0; i<N; i++) 
 				{
 					beta_w[i]=beta[i]+gamma*dbeta[i];
-					printf("beta_w: %.16f\n",beta_w[i]);
+					//printf("beta_w: %.16f\n",beta_w[i]);
 				}
 			l(beta_w, res_w, y);
 			
 			if(norm(res_w,N)<norm(res,N)) {flag=true; break;}
 			gamma/=2.0;
 		}
-		if(flag==false) {cout << endl << "Broken on " << k << "'s iteration" << endl; return -1;}
+		if(flag==false) {cout << endl << "Broken on " << j << "'s iteration" << endl; return -1;}
 		for(i=0; i<N; i++) {
 			beta[i]=beta_w[i];
 			res[i]=res_w[i];
@@ -184,14 +186,13 @@ cout << endl << "not enough iteration" << endl;
 return -2;
 }
 
-void pvn(void) { //попадание в 0
-	
-}
-
 int main() {
-	double beta[5] = {1, 1, 1, 1, 1}, y[8];
-	//double res[5];
+	double beta[5] = {1, 1, 1, 1, 1};
+	double y[8];
+	
 	NEWTON(beta,y);
+
+	cout << "\nT = " << beta[4];
 	//l(beta,res,y);
 
 return 0;

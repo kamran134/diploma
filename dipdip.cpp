@@ -15,8 +15,6 @@ double hres;
 double k;
 double g;
 ofstream fout, fout_betta;
-int chek = 0;
-int chek2 = 0;
 
 void matrix_print(double **pro, int N) {
 	int i, j;
@@ -49,21 +47,22 @@ double norm(double *vector, int N) {
 return max_W*sqrt(sum2);
 }
 
-//resistance function----------------------------------------------
-double fr(double k, double vx, double vy, double pvx, double pvy) {
+//resistance functions----------------------------------------------
+double fr(double k, double vx, double vy) {
+	double _v_;
+	_v_ = sqrt(vx*vx+vy*vy);
+	if (_v_ <= 1e-12) return 0;
+	return k*_v_*vx;
+}
+
+double fr2(double k, double vx, double vy, double pvx, double pvy) {
 	double _v_;
 	double ff;
 	_v_ = sqrt(vx*vx+vy*vy);
 	
-	ff = -k*(pvx*vx*vx/_v_ + pvx*_v_ + pvy*vx*vy/_v_);
-	
-	if (chek2<=100) {
-		fout << "|v| = " << _v_ << endl;
-		fout <<fixed<<setprecision(40)<< "fr = " << ff << endl;
-		chek2++;
-	}
+	ff = k*(pvx*vx*vx/_v_ + pvx*_v_ + pvy*vx*vy/_v_);
 
-	if (_v_ < 1e-12) return 0;
+	if (_v_ <= 1e-12) return 0;
 	return ff;
 }
 
@@ -74,28 +73,30 @@ return 2*k*v;
 
 //------------------------------------------
 void fcn(double x, double *y, double *f) {
-
-	//double g = 9.8;
 	double p_vx2, p_vy2, RHO;
-
+	
 	p_vx2 = y[6]*y[6];	
     p_vy2 = y[7]*y[7];
     RHO = sqrt(p_vx2+p_vy2);
-/*
-	if(chek<=100) {
-		fout << "fr in function fcn: " << fr(k,y[2],y[3],y[4],y[5]) << endl;
-		chek++;
+	
+	if(RHO<=1e-12) {
+		RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+		y[6]=y[4];
+		y[7]=y[5];
 	}
-*/
+
+
 	f[0] = y[2];
 	f[1] = y[3];
-	f[2] = (g*y[6])/(2*RHO);
-	f[3] = g/2. - (g*y[7])/(2*RHO);
+	f[2] = (g*y[6])/(2*RHO) - fr(k,y[2],y[3]);
+	f[3] = g/2. + (g*y[7])/(2*RHO) - fr(k,y[3],y[2]);
 	f[4] = 0;
 	f[5] = 0;
-	f[6] = -y[4]-fr(k, y[2], y[3], y[4], y[5]);
-	f[7] = -y[5]-fr(k, y[3], y[2], y[5], y[4]);
+	f[6] = -y[4]+fr2(k, y[2], y[3], y[4], y[5]);
+	f[7] = -y[5]+fr2(k, y[3], y[2], y[5], y[4]);
 	
+	//f[2] = (g*y[6])/(2*RHO);
+	//f[3] = g/2. + (g*y[7])/(2*RHO);
 }
 
 
@@ -124,6 +125,10 @@ void l(double *beta, double *res, double *y) {
 	pvx2 = y[6]*y[6];
     pvy2 = y[7]*y[7];
     RHO = sqrt(pvx2+pvy2); //RHO(T)
+    
+    //ВАЖНЫЙ МОМЕНТ!
+    if(RHO<1e-12) RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+    
     RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
     H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3] - y[4]*k*_v_*y[2] - y[5]*k*_v_*y[3];//H(T)
     
@@ -183,14 +188,11 @@ int NEWTON(double *beta, double *y) {
 	l(beta, res, y);
 	
 	for(j=0; j<15; j++) {
-		cout << "\n-------\nk = " << j << "\n-------\n";
+		cout << "\n-------\nj = " << j << "\n-------\n";
 	
 		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << j << " iteration" << endl; return j;}
 		gradf(beta,dbeta,res,y);
-	/*	
-		printf("\n\n**************lynear_sys***************\n\n");
-		for(i=0; i<N; i++) printf("\ndbeta[%d] = %.16f", i, dbeta[i]);
-	*/	
+	
 		gamma=1.0;
 		flag=false;
 		while(gamma>eps_gamma) {
@@ -235,10 +237,6 @@ int main() {
 	double y[8];
 	int check;
 	
-	//check = 1;
-	
-	//fout.open("outputDIP.txt");
-	//fout_betta.open("OutputDipBeta");
 	
 	cout << "\aINPUT g and k of resistance: ";
 	cin >> g;
