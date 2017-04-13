@@ -23,7 +23,7 @@ ofstream fout, fout_betta;
 double fr(double k, double vx, double vy) {
 	double _v_;
 	_v_ = sqrt(vx*vx+vy*vy);
-	if (_v_ <= 1e-12) return 0;
+	//if (_v_ <= 1e-12) return 0;
 	return k*_v_*vx;
 }
 
@@ -36,11 +36,6 @@ double fr2(double k, double vx, double vy, double pvx, double pvy) {
 
 	if (_v_ <= 1e-12) return 0;
 	return ff;
-}
-
-//----------------------------------
-double f_r(double k, double v) {
-return 2*k*v;
 }
 
 //------------------------------------------
@@ -99,7 +94,11 @@ void l(double *beta, double *res, double *y) {
     RHO = sqrt(pvx2+pvy2); //RHO(T)
     
     //ВАЖНЫЙ МОМЕНТ!
-    if(RHO<1e-12) RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+    if(RHO<=1e-12) {
+		RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
+		y[6]=y[4];
+		y[7]=y[5];
+	}
     
     RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
     H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3] - y[4]*k*_v_*y[2] - y[5]*k*_v_*y[3];//H(T)
