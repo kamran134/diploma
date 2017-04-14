@@ -11,42 +11,14 @@
 
 using namespace std;
 
-void matrix_print(double **pro, int N) {
-	int i, j;
-	cout << "\n--------------------\n";
-	for(i=0; i<N; i++) {
-		for(j=0; j<N; j++) {
-			cout << pro[i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "--------------------\n";
-}
+double hres;
 
-double norm(double *vector, int N) {
-	int i;
-    double cur, max_W, sum2;
-
-    max_W = 0.0;
-    for(i=0; i<N; i++ ){
-      cur = fabs(vector[i]);
-      if(cur>max_W) max_W=cur;
-    }
-    if(max_W==0.0) return 0.0;
-
-    sum2=0.0;
-    for(i=0; i<N; i++ ){
-      cur=vector[i]/max_W;
-      sum2+=cur*cur;
-    }
-return max_W*sqrt(sum2);
-}
+#include "diploma_func/utilits.cpp"
 
 //------------------------------------------
 void fcn(double x, double *y, double *f) {
 	double p_vx2, p_vy2, RHO;
 	double g=9.8;
-	
 	p_vx2 = y[6]*y[6];	
     p_vy2 = y[7]*y[7];
     RHO = sqrt(p_vx2+p_vy2);
@@ -66,6 +38,9 @@ void fcn(double x, double *y, double *f) {
 	f[5] = 0;
 	f[6] = -y[4];
 	f[7] = -y[5];
+	
+	//f[2] = (g*y[6])/(2*RHO);
+	//f[3] = g/2. + (g*y[7])/(2*RHO);
 }
 
 
@@ -86,7 +61,7 @@ void l(double *beta, double *res, double *y) {
 	y[5]=beta[1]; //py_0
 	y[6]=beta[2]; //p_vx0
 	y[7]=beta[3]; //p_vy0
-	ddopri5(8,fcn,0,y,beta[4],1.e-11,1.0e0,0.5e0);
+	ddopri5(8,fcn,beta[4],y,0,1.e-11,1.0e0,0.5e0);
 	
 	pvx2 = y[6]*y[6];
     pvy2 = y[7]*y[7];
@@ -99,7 +74,7 @@ void l(double *beta, double *res, double *y) {
 		y[7]=y[5];
 	}
     
-    RHO*= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
+    RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
     H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3];//H(T)
     
     //fout << "\n\nRHO is equal to " << RHO << "\n\n";
@@ -143,8 +118,10 @@ void gradf(double *beta, double *dbeta, double *res, double *y) {
 	
 	for(i=0; i<N; i++) res_m[i]=-res[i];
 	linear_sys(pro, dbeta, res_m, N);
-
+	
+	
 	//printf("TEST!");
+	
 	//matrix_print(pro2, N);
 }
 
@@ -153,15 +130,12 @@ int NEWTON(double *beta, double *y) {
 	double res[N], res_w[N], beta_w[N], dbeta[N], gamma;
 	bool flag;
 	
-	l(beta,res,y);
+	l(beta, res, y);
 	
 	for(j=0; j<15; j++) {
-		//cout << "\n-------\nj = " << j << "\n-------\n";
+		cout << "\n-------\nj = " << j << "\n-------\n";
 	
-		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {
-			cout << endl <<"Ended by " << j << " iteration" << endl; 
-			return j;
-		}
+		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {cout << endl <<"Ended by " << j << " iteration" << endl; return j;}
 		gradf(beta,dbeta,res,y);
 	
 		gamma=1.0;
@@ -190,19 +164,11 @@ return -2;
 int main() {
 	double beta[5] = {1, 1, 1, 1, 1};
 	double y[8];
-	int check;
 	
-	cout << "0 for ddopri 5, 1 for NEWTON: ";
-	cin >> check;
+	NEWTON(beta,y);
 
-	if (check==0) {
-			double res[5];
-			l(beta,res,y);
-	}
-	else if (check==1) {
-		NEWTON(beta,y);
-		cout << "\nT = " << beta[4];
-	}
+	cout << "\nT = " << beta[4];
+	//l(beta,res,y);
 
 return 0;
 }

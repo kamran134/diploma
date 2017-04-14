@@ -4,20 +4,20 @@ double dsign(double a, double b) {
 	return 0.0;
 }
 
-double max_root(double x, double lambda) {
-	return max(-0.5+0.5*lambda*x, 0.5-0.5*lambda*x);
+double max_root(double t, double lambda) {
+	return max(-0.5+0.5*lambda*t, 0.5-0.5*lambda*t);
 }
 
-double ddopri5(int n,void (*fcn)(double, double*,double*),double x,double *y,double xend, double eps, double hmax,double h) {	
-//double ddopri5(int n,double x,double *y,double xend, double eps, double hmax,double h) {    
+double ddopri5(int n,void (*fcn)(double, double*,double*),double t,double *y,double tend, double eps, double hmax,double h) {	
+//double ddopri5(int n,double t,double *y,double tend, double eps, double hmax,double h) {    
     double k1[11],k2[11],k3[11],k4[11],k5[11],y1[11];
     bool reject;
-    double xph,err,denom,fac,hnew,posneg;
+    double tph,err,denom,fac,hnew,posneg;
     int nmax=30000,i;
     double uround=2.2205e-16;
     double gerror=0;
     
-    posneg=dsign(1.e0,xend-x);
+    posneg=dsign(1.e0,tend-t);
     hmax=fabs(hmax);
     h=min(max(1.e-4,fabs(h)),hmax);
     h=dsign(h,posneg);
@@ -27,26 +27,26 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double x,double *y,dou
     int nfcn=1;
     int nstep=0;
     eps=max(eps,7.e0*uround);
-    fcn(x,y,k1);
+    fcn(t,y,k1);
     while (1) {
 		if ( nstep > nmax ) break;
-		if ( (x-xend)*posneg+uround > 0.e0) break;
-		if ( (x+h-xend)*posneg > 0.e0) h=xend-x;
+		if ( (t-tend)*posneg+uround > 0.e0) break;
+		if ( (t+h-tend)*posneg > 0.e0) h=tend-t;
 		nstep++;
 		for (i=0; i<n; i++) y1[i]=y[i]+h*.2e0*k1[i];
-		fcn(x+h*.2e0,y1,k2);
+		fcn(t+h*.2e0,y1,k2);
 		for (i=0; i<n; i++) y1[i]=y[i]+h*((3.e0/40.e0)*k1[i]+(9.e0/40.e0)*k2[i]);
-		fcn(x+h*.3e0,y1,k3);
+		fcn(t+h*.3e0,y1,k3);
 		for (i=0; i<n; i++) y1[i]=y[i]+h*((44.e0/45.e0)*k1[i]-(56.e0/15.e0)*k2[i]+(32.e0/9.e0)*k3[i]);
-		fcn(x+h*.8e0,y1,k4);
+		fcn(t+h*.8e0,y1,k4);
 		for (i=0; i<n; i++) y1[i]=y[i]+h*((19372.e0/6561.e0)*k1[i]-(25360.e0/2187.e0)*k2[i]+(64448.e0/6561.e0)*k3[i]-(212.e0/729.e0)*k4[i]);
-		fcn(x+h*(8.e0/9.e0),y1,k5);
+		fcn(t+h*(8.e0/9.e0),y1,k5);
 		for (i=0; i<n; i++) y1[i]=y[i]+h*((9017.e0/3168.e0)*k1[i]-(355.e0/33.e0)*k2[i]+(46732.e0/5247.e0)*k3[i]+(49.e0/176.e0)*k4[i]-(5103.e0/18656.e0)*k5[i]);
-		xph=x+h;
-		fcn(xph,y1,k2);
+		tph=t+h;
+		fcn(tph,y1,k2);
 		for (i=0; i<n; i++) y1[i]=y[i]+h*((35.e0/384.e0)*k1[i]+(500.e0/1113.e0)*k3[i]+(125.e0/192.e0)*k4[i]-(2187.e0/6784.e0)*k5[i]+(11.e0/84.e0)*k2[i]);
 		for (i=0; i<n; i++) k2[i]=(71.e0/57600.e0)*k1[i]-(71.e0/16695.e0)*k3[i]+(71.e0/1920.e0)*k4[i]-(17253.e0/339200.e0)*k5[i]+(22.e0/525.e0)*k2[i];
-		fcn(xph,y1,k3);
+		fcn(tph,y1,k3);
 		for (i=0; i<n; i++) k4[i]=(k2[i]-(1.e0/40.e0)*k3[i])*h;
 		nfcn+=6;
 		err=0;
@@ -63,29 +63,26 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double x,double *y,dou
 				k1[i]=k3[i];
 				y[i]=y1[i];
 			}
-			x=xph;
+			t=tph;
 			if(fabs(hnew)>hmax) hnew=posneg*hmax;
 			if(reject) hnew=posneg*min(fabs(hnew),fabs(h)),reject=false;
 			else reject=true;
 			if(naccpt >= 1) nrejct++;
-			double omega = max_root(x, y[3]);
+			double omega = max_root(t, y[3]);
 			gerror = err + gerror*pow(M_E, h*omega); //gerror это то, что в теории называется лямбдой маленькой, а err это лямбда большая (треугольная)
 		}
 		h=hnew;
-		
-		//cout <<fixed<<setprecision(16)<< x << endl;
-		//cout << "-------------------------------" << endl;
     }
 		
-		cout << x << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tx(" << x << ") = " << y[0] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\ty(" << x << ") = " << y[1] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tv_x(" << x << ") = " << y[2] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tv_y(" << x << ") = " << y[3] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_x(" << x << ") = " << y[4] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_y(" << x << ") = " << y[5] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_v_x(" << x << ") = " << y[6] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_v_y(" << x << ") = " << y[7] << endl;
+		cout << t << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tx(" << t << ") = " << y[0] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\ty(" << t << ") = " << y[1] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tv_x(" << t << ") = " << y[2] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tv_y(" << t << ") = " << y[3] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tp_x(" << t << ") = " << y[4] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tp_y(" << t << ") = " << y[5] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tp_v_x(" << t << ") = " << y[6] << endl;
+		cout <<fixed<<setprecision(16)<< "\t\tp_v_y(" << t << ") = " << y[7] << endl;
 		cout << "-------------------------------" << endl;
     return gerror;
 }
