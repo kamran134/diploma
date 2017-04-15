@@ -13,36 +13,7 @@ using namespace std;
 
 double hres;
 
-void matrix_print(double **pro, int N) {
-	int i, j;
-	cout << "\n--------------------\n";
-	for(i=0; i<N; i++) {
-		for(j=0; j<N; j++) {
-			cout << pro[i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "--------------------\n";
-}
-
-double norm(double *vector, int N) {
-	int i;
-    double cur, max_W, sum2;
-
-    max_W = 0.0;
-    for(i=0; i<N; i++ ){
-      cur = fabs(vector[i]);
-      if(cur>max_W) max_W=cur;
-    }
-    if(max_W==0.0) return 0.0;
-
-    sum2=0.0;
-    for(i=0; i<N; i++ ){
-      cur=vector[i]/max_W;
-      sum2+=cur*cur;
-    }
-return max_W*sqrt(sum2);
-}
+#include "diploma_func/utilits.cpp"
 
 //------------------------------------------
 void fcn(double x, double *y, double *f) {
@@ -90,6 +61,9 @@ void l(double *beta, double *res, double *y) {
 	y[5]=beta[1]; //py_0
 	y[6]=beta[2]; //p_vx0
 	y[7]=beta[3]; //p_vy0
+	
+	
+	
 	ddopri5(8,fcn,0,y,beta[4],1.e-11,1.0e0,0.5e0);
 	
 	pvx2 = y[6]*y[6];
@@ -100,9 +74,6 @@ void l(double *beta, double *res, double *y) {
     if(RHO<1e-12) RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
     
     RHO *= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
-    H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3];//H(T)
-    
-    //fout << "\n\nRHO is equal to " << RHO << "\n\n";
     
     res[0]=y[0]-5; //0.0727930740001; //-0.07279307323(2)1;
 	res[1]=y[1]-7; //-6.0309331715847536;//T=5//-8.8869461060126618; //T=2//y_T
