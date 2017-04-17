@@ -79,7 +79,7 @@ void l(double *beta, double *res, double *y) {
 	res[1]=y[1]-7; //-6.0309331715847536;//T=5//-8.8869461060126618; //T=2//y_T
 	res[2]=y[6];
 	res[3]=y[7];
-	res[5]=H-1;
+	res[4]=H-1;
 	
 }
 

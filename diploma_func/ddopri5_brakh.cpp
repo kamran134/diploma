@@ -73,16 +73,10 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double x,double *y,dou
 		}
 		h=hnew;
 		
-		MY_PRINT(y, x);
-		//cout << "H = " << H(y) << endl;
-		
-		//cout << x << " : " << y[6] << " ,  " << y[7] << endl << endl;
-		//cout << "-------------------------------" << endl;
 		//cout <<fixed<<setprecision(16)<< x << endl;
 		//cout << "-------------------------------" << endl;
-		 
     }
-		/*
+		
 		cout << x << endl;
 		cout <<fixed<<setprecision(16)<< "\t\tx(" << x << ") = " << y[0] << endl;
 		cout <<fixed<<setprecision(16)<< "\t\ty(" << x << ") = " << y[1] << endl;
@@ -92,8 +86,6 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double x,double *y,dou
 		cout <<fixed<<setprecision(16)<< "\t\tp_y(" << x << ") = " << y[5] << endl;
 		cout <<fixed<<setprecision(16)<< "\t\tp_v_x(" << x << ") = " << y[6] << endl;
 		cout <<fixed<<setprecision(16)<< "\t\tp_v_y(" << x << ") = " << y[7] << endl;
-		cout << "-------------------------------" << endl;
-		*/
 		cout << "-------------------------------" << endl;
     return gerror;
 }
