@@ -75,14 +75,8 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double t,double *y,dou
     }
 		
 		cout << t << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tx(" << t << ") = " << y[0] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\ty(" << t << ") = " << y[1] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tv_x(" << t << ") = " << y[2] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tv_y(" << t << ") = " << y[3] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_x(" << t << ") = " << y[4] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_y(" << t << ") = " << y[5] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_v_x(" << t << ") = " << y[6] << endl;
-		cout <<fixed<<setprecision(16)<< "\t\tp_v_y(" << t << ") = " << y[7] << endl;
+		cout << y[0] << " , " << y[1] << " , " << y[2] << endl;
+		cout << y[3] << " , " << y[4] << " , " << y[5] << endl;
 		cout << "-------------------------------" << endl;
     return gerror;
 }
