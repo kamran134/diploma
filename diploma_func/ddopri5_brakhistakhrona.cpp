@@ -72,8 +72,18 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double t,double *y,dou
 			gerror = err + gerror*pow(M_E, h*omega); //gerror это то, что в теории называется лямбдой маленькой, а err это лямбда большая (треугольная)
 		}
 		h=hnew;
+		
+		//cout << "\n" << t << " : " << endl;
+		//cout << y[0] << " ; " << y[1] << " ; " << y[2] << endl;
+		//cout <<fixed<<setprecision(16)<< y[3] << " ; " << y[4] << " ; " << y[5] << endl;
     }
 		
+		
+		cout << "\n" << t << " : " << endl;
+		cout << y[0] << " ; " << y[1] << " ; " << y[2] << endl;
+		cout << y[3] << " ; " << y[4] << " ; " << y[5] << endl;
+		
+		/*
 		cout << t << endl;
 		cout <<fixed<<setprecision(16)<< "\t\tx(" << t << ") = " << y[0] << endl;
 		cout <<fixed<<setprecision(16)<< "\t\ty(" << t << ") = " << y[1] << endl;
@@ -84,5 +94,6 @@ double ddopri5(int n,void (*fcn)(double, double*,double*),double t,double *y,dou
 		cout <<fixed<<setprecision(16)<< "\t\tp_v_x(" << t << ") = " << y[6] << endl;
 		cout <<fixed<<setprecision(16)<< "\t\tp_v_y(" << t << ") = " << y[7] << endl;
 		cout << "-------------------------------" << endl;
+		*/
     return gerror;
 }

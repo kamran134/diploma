@@ -1,3 +1,15 @@
+void matrix_print_f(double **pro, int N) {
+	int i, j;
+	mout << "\n--------------------\n";
+	for(i=0; i<N; i++) {
+		for(j=0; j<N; j++) {
+			mout << pro[i][j] << "\t\t\t";
+		}
+		mout << endl;
+	}
+	mout << "--------------------\n";
+}
+
 void matrix_print(double **pro, int N) {
 	int i, j;
 	cout << "\n--------------------\n";

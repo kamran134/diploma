@@ -11,61 +11,34 @@
 
 using namespace std;
 
-void matrix_print(double **pro, int N) {
-	int i, j;
-	cout << "\n--------------------\n";
-	for(i=0; i<N; i++) {
-		for(j=0; j<N; j++) {
-			cout << pro[i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "--------------------\n";
-}
+//GLOBAL VARIABLES
+double g = 9.8;
+ofstream RHOout;
+ofstream mout;
+//----------------
 
-double norm(double *vector, int N) {
-	int i;
-    double cur, max_W, sum2;
-
-    max_W = 0.0;
-    for(i=0; i<N; i++ ){
-      cur = fabs(vector[i]);
-      if(cur>max_W) max_W=cur;
-    }
-    if(max_W==0.0) return 0.0;
-
-    sum2=0.0;
-    for(i=0; i<N; i++ ){
-      cur=vector[i]/max_W;
-      sum2+=cur*cur;
-    }
-return max_W*sqrt(sum2);
-}
+#include "diploma_func/utilits.cpp"
 
 //------------------------------------------
 void fcn(double x, double *y, double *f) {
-	double p_vx2, p_vy2, RHO;
-	double g=9.8;
+	double RHO, C1, C2, sinT, cosT;
 	
-	p_vx2 = y[6]*y[6];	
-    p_vy2 = y[7]*y[7];
-    RHO = sqrt(p_vx2+p_vy2);
+	//------------------------------
+	C1 = y[2]*y[3];
+	C2 = y[2]*y[4]-g*y[5];
+	RHO = sqrt(C1*C1+C2*C2);
+	cosT = C1/RHO;
+	sinT = C2/RHO;
+	//------------------------------
 	
-	if(RHO<=1e-12) {
-		RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
-		y[6]=y[4];
-		y[7]=y[5];
-	}
-
-
-	f[0] = y[2];
-	f[1] = y[3];
-	f[2] = (g*y[6])/(2*RHO);
-	f[3] = g/2. + (g*y[7])/(2*RHO);
+	f[0] = y[2]*cosT;
+	f[1] = y[2]*sinT;
+	f[2] = -g*sinT;
+	f[3] = 0;
 	f[4] = 0;
-	f[5] = 0;
-	f[6] = -y[4];
-	f[7] = -y[5];
+	f[5] = -y[3]*cosT-y[4]*sinT;
+	
+	//RHOout << RHO << endl;
 }
 
 
@@ -75,53 +48,34 @@ void fcn(double x, double *y, double *f) {
 #include "diploma_func/gauss_m.cpp"
 
 void l(double *beta, double *res, double *y) {
-	double pvx2, pvy2, RHO, H;
-	double g=9.8;
+	//double H;
+	
+	y[0] = 0; // x(0)
+	y[1] = 0; // y(0)
+	y[2] = 0; // v(0)
+	y[3] = beta[0]; //px(0)
+	y[4] = beta[1]; //py(0)
+	//y[5] = beta[2]; //pv(0)
+	y[5] = 1;
 
-	y[0]=0; //x_0
-	y[1]=0; //y_0
-	y[2]=0; //vx_0
-	y[3]=0; //vy_0
-	y[4]=beta[0]; //px_0
-	y[5]=beta[1]; //py_0
-	y[6]=beta[2]; //p_vx0
-	y[7]=beta[3]; //p_vy0
-	ddopri5(8,fcn,0,y,beta[4],1.e-11,1.0e0,0.5e0);
+	//H = fabs(y[5]);
+	ddopri5(6,fcn,0,y,beta[2],1.e-11,beta[2],0.5e0);
 	
-	pvx2 = y[6]*y[6];
-    pvy2 = y[7]*y[7];
-    RHO = sqrt(pvx2+pvy2); //RHO(T)
-    
-    //ВАЖНЫЙ МОМЕНТ!
-    if(RHO<=1e-12) {
-		RHO = sqrt(y[4]*y[4]+y[5]*y[5]);
-		y[6]=y[4];
-		y[7]=y[5];
-	}
-    
-    RHO*= 2.; //!!!! ПОЛУЧИЛИ 2*RHO(T)
-    H = y[6]*y[6]*g/RHO + y[7]*g/2 - y[7]*y[7]*g/RHO + y[4]*y[2] + y[5]*y[3];//H(T)
-    
-    //fout << "\n\nRHO is equal to " << RHO << "\n\n";
-    
-    res[0]=y[0]-5; //0.0727930740001; //-0.07279307323(2)1;
-	res[1]=y[1]-7; //-6.0309331715847536;//T=5//-8.8869461060126618; //T=2//y_T
-	res[2]=y[6];
-	res[3]=y[7];
-	res[5]=H-1;
-	
+	res[0] = y[0] - 100;
+	res[1] = y[1] + 1;
+	res[2] = y[5];
+	//res[3] = H - g;
 }
 
 void gradf(double *beta, double *dbeta, double *res, double *y) {
-	int i, j, N=5;
-	double beta_p[N], beta_m[N], res_p[N], res_m[N], h=1.e-6;
-	double **pro, **pro2;
-
+	int i, j, N=3;
+	double beta_p[N], beta_m[N], res_p[N], res_m[N], res_minus[N], h=1.e-6;
+	double **pro;
+	
+	
 	pro=(double**)malloc(N*sizeof(double*));
-	pro2=(double**)malloc(N*sizeof(double*));
 	for(i=0; i<N; i++) {
 		pro[i]=(double*)malloc(N*sizeof(double));
-		pro2[i]=(double*)malloc(N*sizeof(double));
 	}
 
 	for(j=0; j<N; j++) {
@@ -139,17 +93,19 @@ void gradf(double *beta, double *dbeta, double *res, double *y) {
 		for(i=0; i<N; i++) pro[i][j]=(res_p[i]-res_m[i])/(2*h);
 	}
 	
-	matrix_print(pro, N);
+	//matrix_print(pro, N);
+	matrix_print_f(pro, N);
 	
-	for(i=0; i<N; i++) res_m[i]=-res[i];
-	linear_sys(pro, dbeta, res_m, N);
-
+	for(i=0; i<N; i++) res_minus[i]=-res[i];
+	linear_sys(pro, dbeta, res_minus, N);
+	
+	for(i=0; i<N; i++) printf("dbeta: %.16f\n",dbeta[i]);
 	//printf("TEST!");
 	//matrix_print(pro2, N);
 }
 
 int NEWTON(double *beta, double *y) {
-	int i, j, N=5;
+	int i, j, N=3;
 	double res[N], res_w[N], beta_w[N], dbeta[N], gamma;
 	bool flag;
 	
@@ -158,7 +114,7 @@ int NEWTON(double *beta, double *y) {
 	for(j=0; j<15; j++) {
 		//cout << "\n-------\nj = " << j << "\n-------\n";
 	
-		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens && fabs(res[3])<ens) {
+		if(fabs(res[0])<ens && fabs(res[1])<ens && fabs(res[2])<ens) {
 			cout << endl <<"Ended by " << j << " iteration" << endl; 
 			return j;
 		}
@@ -170,7 +126,7 @@ int NEWTON(double *beta, double *y) {
 			for(i=0; i<N; i++) 
 				{
 					beta_w[i]=beta[i]+gamma*dbeta[i];
-					//printf("beta_w: %.16f\n",beta_w[i]);
+					//printf("dbeta: %.16f\n",dbeta[i]);
 				}
 			l(beta_w, res_w, y);
 			
@@ -188,20 +144,23 @@ return -2;
 }
 
 int main() {
-	double beta[5] = {1, 1, 1, 1, 1};
-	double y[8];
+	double beta[3] = {1, 1, 2.35384};
+	double y[6];
 	int check;
+	
+	RHOout.open("RHO.txt");
+	mout.open("matrix_pro.txt");
 	
 	cout << "0 for ddopri 5, 1 for NEWTON: ";
 	cin >> check;
 
 	if (check==0) {
-			double res[5];
+			double res[4];
 			l(beta,res,y);
 	}
 	else if (check==1) {
 		NEWTON(beta,y);
-		cout << "\nT = " << beta[4];
+		cout << "\nT = " << beta[2];
 	}
 
 return 0;
